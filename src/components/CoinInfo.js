@@ -16,6 +16,7 @@ const CoinInfo = ({ coin }) => {
   const [historicData, setHistoricData] = useState();
   const [days, setDays] = useState(1);
   const { currency } = CryptoState();
+  const [flag,setflag] = useState(false);
 
   const useStyles = makeStyles((theme) => ({
     container: {
@@ -39,14 +40,16 @@ const CoinInfo = ({ coin }) => {
 
   const fetchHistoricData = async () => {
     const { data } = await axios.get(HistoricalChart(coin.id, days, currency));
-
+    setflag(true);
     setHistoricData(data.prices);
   };
+
+  console.log(coin);
 
   useEffect(() => {
     fetchHistoricData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [days, currency]);
+  }, [days]);
 
   const darkTheme = createTheme({
     palette: {
@@ -60,7 +63,7 @@ const CoinInfo = ({ coin }) => {
   return (
     <ThemeProvider theme={darkTheme}>
       <div className={classes.container}>
-        {!historicData ? (
+        {!historicData | flag===false ? (
           <CircularProgress
             style={{ color: "gold" }}
             size={250}
@@ -106,7 +109,9 @@ const CoinInfo = ({ coin }) => {
               {chartDays.map((day) => (
                 <SelectButton
                   key={day.value}
-                  onClick={() => setDays(day.value)}
+                  onClick={() => {setDays(day.value);
+                    setflag(false);
+                  }}
                   selected={day.value === days}
                 >
                   {day.label}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Pagination from "@material-ui/lab/Pagination";
 import {
@@ -16,6 +16,8 @@ import {
   Table,
   Paper,
 } from "@material-ui/core";
+import axios from "axios";
+import { CoinList } from "../config/api";
 import { useHistory } from "react-router-dom";
 import { CryptoState } from "../CryptoContext";
 
@@ -24,10 +26,12 @@ export function numberWithCommas(x) {
 }
 
 export default function CoinsTable() {
+  const [coins, setCoins] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const { symbol, coins, loading } = CryptoState();
+  const { currency, symbol } = CryptoState();
 
   const useStyles = makeStyles({
     row: {
@@ -57,11 +61,25 @@ export default function CoinsTable() {
     },
   });
 
+  const fetchCoins = async () => {
+    setLoading(true);
+    const { data } = await axios.get(CoinList(currency));
+    console.log(data);
+
+    setCoins(data);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchCoins();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currency]);
+
   const handleSearch = () => {
     return coins.filter(
       (coin) =>
-        coin.name.toLowerCase().includes(search) ||
-        coin.symbol.toLowerCase().includes(search)
+         coin.name.toLowerCase().includes(search) //||
+        // coin.symbol.toLowerCase().includes(search)
     );
   };
 
@@ -95,7 +113,7 @@ export default function CoinsTable() {
                         fontFamily: "Montserrat",
                       }}
                       key={head}
-                      align={head === "Coin" ? "left" : "right"}
+                      align={head === "Coin" ? "" : "right"}
                     >
                       {head}
                     </TableCell>
@@ -175,7 +193,7 @@ export default function CoinsTable() {
 
         {/* Comes from @material-ui/lab */}
         <Pagination
-          count={parseInt((handleSearch()?.length / 10).toFixed(0))}
+          count={(handleSearch()?.length / 10).toFixed(0)}
           style={{
             padding: 20,
             width: "100%",
