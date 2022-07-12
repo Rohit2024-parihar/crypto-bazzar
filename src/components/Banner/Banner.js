@@ -41,7 +41,7 @@ function Banner() {
               fontFamily: "Montserrat",
             }}
           >
-            Crypto Hunter
+            Crypro Bazzar
           </Typography>
           <Typography
             variant="subtitle2"
